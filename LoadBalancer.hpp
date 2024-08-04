@@ -31,10 +31,12 @@ public:
 };
 
 class PacketDepartureEvent : public Event {
-    const double waitTime;
+    const double packetArrivalTime;
+    const double serviceTime;
     Server* server;
 public:
-    PacketDepartureEvent(double waitTime, double departureTime, Server* server);
+    PacketDepartureEvent(double arrivalTime, double departureTime, double serviceTime, Server* server);
+    double getServiceTime() const;
     double getWaitTime() const;
     void process() const override;
 };
@@ -51,6 +53,7 @@ class Server {
     unsigned int tossedPackets;
     unsigned int servicedPackets;
     double totalWaitTime;
+    double totalServingTime;
 
     Simulator& simulator;
 public:
@@ -62,8 +65,10 @@ public:
     void tossPacket();
     int getTossedPacketsNum() const;
     int getServicedPacketsNum() const;
+    double getTotalWaitTime() const;
+    double getTotalServingTime() const;
     void registerPacket(const PacketArrivalEvent& packet);
-    void processPacket();
+    void processPacket(const PacketDepartureEvent& packet);
 };
 
 class LoadBalancerSim : public Simulator {
@@ -81,8 +86,12 @@ public:
     ~LoadBalancerSim() = default;
     
     int getTossedPacketsNum() const;
-    int getTotalWaitTime() const;
     int getServicedPacketsNum() const;
+    double getTotalWaitTime() const;
+    double getSimTiming() const;
+    double getPacketAvgWaitTime() const;
+    double getTotalServiceTime() const;
+    double getAvgServiceTime() const;
 };
 
 #endif /* LoadBalancer_hpp */

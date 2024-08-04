@@ -17,20 +17,22 @@ void PacketArrivalEvent::process() const {
     server->registerPacket(*this);
 }
 
-PacketDepartureEvent::PacketDepartureEvent(double waitTime, double departureTime, Server* server) : Event(departureTime), waitTime(waitTime), server(server) {}
+PacketDepartureEvent::PacketDepartureEvent(double arrivalTime, double departureTime, double serviceTime, Server* server) : Event(departureTime), packetArrivalTime(arrivalTime), serviceTime(serviceTime), server(server) {}
 
+double PacketDepartureEvent::getServiceTime() const {
+    return serviceTime;
+}
 
 double PacketDepartureEvent::getWaitTime() const {
-    return waitTime;
+    return occuranceTime - serviceTime - packetArrivalTime;
 }
 
 void PacketDepartureEvent::process() const  {
-    server->processPacket();
+    server->processPacket(*this);
 }
 
 
-Server::Server(Simulator& sim, unsigned int maxSize, double serviceRate) : m_maxSize(maxSize), m_serviceRate(serviceRate), serviceTime(serviceRate), busy(false), tossedPackets(0),servicedPackets(0), totalWaitTime(0.0), simulator(sim)
-{
+Server::Server(Simulator& sim, unsigned int maxSize, double serviceRate) : m_maxSize(maxSize), m_serviceRate(serviceRate), serviceTime(m_serviceRate), busy(false), tossedPackets(0), servicedPackets(0), totalWaitTime(0.0), simulator(sim) {
     size_t seed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed((unsigned int) seed);
 }
@@ -55,6 +57,14 @@ int Server::getServicedPacketsNum() const {
     return servicedPackets;
 }
 
+double Server::getTotalWaitTime() const {
+    return totalWaitTime;
+}
+
+double Server::getTotalServingTime() const {
+    return totalServingTime;
+}
+
 void Server::registerPacket(const PacketArrivalEvent& packet){
     if(isBusy())
     {
@@ -70,14 +80,16 @@ void Server::registerPacket(const PacketArrivalEvent& packet){
         double arrivalTime = packet.getOccuranceTime();
         double servingTime = serviceTime(generator);
         double departureTime = arrivalTime + servingTime;
-        std::shared_ptr<Event> newEvent = make_shared<PacketDepartureEvent>(servingTime, departureTime, this);
+        std::shared_ptr<Event> newEvent = make_shared<PacketDepartureEvent>(arrivalTime, departureTime, servingTime, this);
         simulator.scheduleEvent((newEvent));
     }
 }
 
-void Server::processPacket()
+void Server::processPacket(const PacketDepartureEvent& packet)
 {
-    // totalWaitTime += packet.getWaitTime();
+    servicedPackets++;
+    totalWaitTime += packet.getWaitTime();
+    totalServingTime += packet.getServiceTime();
     if(packets.size() == 0)
     {
         busy = false;
@@ -85,11 +97,12 @@ void Server::processPacket()
     }
     shared_ptr<PacketArrivalEvent> toServe = packets.front();
     packets.pop();
-    double arrivalTime = toServe->getOccuranceTime();
-    double departureTime = arrivalTime + serviceTime(generator);
-    std::shared_ptr<Event> newEvent = make_shared<PacketDepartureEvent>(arrivalTime, departureTime, this);
+    double time = toServe->getOccuranceTime();
+    double servingTime = serviceTime(generator);
+    double departureTime = packet.getOccuranceTime() + servingTime;
+    std::shared_ptr<Event> newEvent = make_shared<PacketDepartureEvent>(time, departureTime, servingTime, this);
     simulator.scheduleEvent(newEvent);
-    servicedPackets++;
+    
 }
 
 Server* LoadBalancerSim::selectServer() {
@@ -147,7 +160,34 @@ int LoadBalancerSim::getServicedPacketsNum() const {
     return count;
 }
 
+double LoadBalancerSim::getTotalWaitTime() const {
+    double count = 0;
+    for(const Server& server : servers)
+        count += server.getTotalWaitTime();
+    return count;
+}
+
+double LoadBalancerSim::getTotalServiceTime() const {
+    double count = 0;
+    for(const Server& server : servers)
+        count += server.getTotalServingTime();
+    return count;
+}
+
+double LoadBalancerSim::getPacketAvgWaitTime() const {
+    return getTotalWaitTime() / getServicedPacketsNum();
+}
+
+double LoadBalancerSim::getAvgServiceTime() const {
+    return getTotalServiceTime() / getServicedPacketsNum();
+}
+
+double LoadBalancerSim::getSimTiming() const {
+    return currentTime;
+}
+
 std::ostream& LoadBalancerSim::print(std::ostream& os) const {
-    os << getServicedPacketsNum() << " " << getTossedPacketsNum();
+    os << getServicedPacketsNum() << " " << getTossedPacketsNum() << " ";
+    os << getSimTiming() << " " << getPacketAvgWaitTime() << " " << getAvgServiceTime();
     return os;
 }
