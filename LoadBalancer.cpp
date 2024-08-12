@@ -188,6 +188,6 @@ double LoadBalancerSim::getSimTiming() const {
 
 std::ostream& LoadBalancerSim::print(std::ostream& os) const {
     os << getServicedPacketsNum() << " " << getTossedPacketsNum() << " ";
-    os << getSimTiming() << " " << getPacketAvgWaitTime() << " " << getAvgServiceTime();
+    os << getSimTiming() << " " << getAvgServiceTime() << " " << getPacketAvgWaitTime() ;
     return os;
 }
