@@ -37,7 +37,6 @@ void Simulator::runSim(){
         currentTime = event->getOccuranceTime();
         event->process();
     }
-    std::cout << "endTime: " << currentTime << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, const Simulator& simulator) {
