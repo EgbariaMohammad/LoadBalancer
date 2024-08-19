@@ -7,8 +7,6 @@
 
 #include "LoadBalancer.hpp"
 
-int totalCount=0;
-
 using std::make_shared;
 
 PacketArrivalEvent::PacketArrivalEvent(double arrival, Server* server) : Event(arrival), server(server) {}
