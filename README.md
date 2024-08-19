@@ -24,3 +24,12 @@ The goal of this simulation is to help understand how different load balancing s
 ```bash
 ./simulator T N P1 P2 ... Pn 𝜆 𝑄1 𝑄2 ... 𝑄n  μ1 μ2 ... μn
 ./simulator 5000 2 0.2 0.8 200 2 10 20 190
+```
+
+## Disclaimer
+
+This code is provided as is for educational purposes and as a reference. The author is not responsible for any consequences, including but not limited to academic misconduct, that may arise from inappropriate use of this code. It is the user's responsibility to abide by their institution's academic integrity policies. Copying this code and using it without understanding or crediting the source may be considered plagiarism by your institution.
+
+## Authors
+
+@EgbariaMohammad
