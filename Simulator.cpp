@@ -8,7 +8,7 @@
 #include "Simulator.hpp"
 #include <iostream>
 
-Event::Event(double time) : occuranceTime(time) {};
+Event::Event(double time) : occuranceTime(time) {}
 
 double Event::getOccuranceTime() const {
     return occuranceTime;

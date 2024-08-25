@@ -2,7 +2,7 @@ CC=g++
 OBJS=Simulator.o LoadBalancer.o main.o
 EXEC=simulator
 DEBUG_FLAG= -g
-COMP_FLAG=-std=c++17 -Wall -pedantic-errors -Werror -DNDEBUG
+COMP_FLAG=-std=c++11 -Wall -pedantic-errors -Werror -DNDEBUG
 
 $(EXEC) : $(OBJS)
 	$(CC) $(DEBUG_FLAG) $(OBJS) -o $@

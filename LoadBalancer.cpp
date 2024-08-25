@@ -6,6 +6,7 @@
 //
 
 #include "LoadBalancer.hpp"
+#include <chrono>
 
 using std::make_shared;
 
@@ -131,7 +132,7 @@ LoadBalancerSim::LoadBalancerSim(int simTime, const vector<int>& serversSizes,
     size_t seed = std::chrono::system_clock::now().time_since_epoch().count();
     generator.seed((unsigned int) seed);
     
-    for(int i=0; i< serversSizes.size(); i++)
+    for(int i=0; i< (int) serversSizes.size(); i++)
         servers.push_back(Server(*this, serversSizes[i], serviceRatePerServer[i]));
     
     double time = 0;
