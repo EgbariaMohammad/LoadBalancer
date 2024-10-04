@@ -1,6 +1,7 @@
 # Load Balancer Simulation
 
-This repository contains a simple simulation of a load balancer that distributes incoming packets across multiple servers.
+This repository contains a simulator of a load balancer that distributes incoming packets across multiple servers.
+This repository was created as a mini project in Computer Networks (in Queue Theory specifically). Grade: 100!
 
 ## Description
 
